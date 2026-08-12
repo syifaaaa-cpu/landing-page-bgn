@@ -24,28 +24,31 @@
 
    <main class="main-news-section container" style="display: flex; gap: 30px; align-items: flex-start; padding-top: 20px;">
     
-    <!-- Bagian Kiri: List Berita -->
-    <section class="news-content-area" style="flex: 2;">
-        <h2 class="section-title">Berita Terkini</h2>
-        <div id="container-berita"></div> 
-    </section>
-
+  <!-- Bagian Kiri: List Berita -->
+    <!-- Bagian Kiri: List Berita (Diberi Scroll Internal & Batas Tinggi) -->
+  <section class="news-content-area" style="flex: 1.2; min-width: 0;">
+      <h2 class="section-title" style="margin-bottom: 15px;">Berita Terkini</h2>
+      
+      <!-- Bungkus container berita dengan tinggi tetap & fungsi scroll -->
+      <div style="max-height: 750px; overflow-y: auto; padding-right: 10px; scrollbar-width: thin;">
+          <div id="container-berita"></div> 
+      </div>
+  </section>
     <!-- Bagian Kanan: Detail Berita (Pengganti Terpopuler) -->
-    <aside class="sidebar-kanan" style="flex: 1; position: sticky; top: 20px;">
-        <div class="detail-preview-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
-            <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+    <aside class="sidebar-kanan" style="flex: 1.4; position: sticky; top: 20px; min-width: 0;">
+        <div class="detail-preview-card" style="background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);">
+            <h3 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
                 Detail Berita Terpilih
             </h3>
             
             <!-- Tempat di mana detail berita akan muncul -->
             <div id="sidebar-detail-content">
-                <p style="font-size: 13px; color: #6b7280; text-align: center; padding: 30px 0;">
+                <p style="font-size: 14px; color: #6b7280; text-align: center; padding: 40px 0;">
                     Silakan klik <strong>"Lihat Selengkapnya"</strong> pada salah satu berita di sebelah kiri untuk melihat detail lengkap di sini.
                 </p>
             </div>
         </div>
     </aside>
-
 </main>
     <footer class="footer-section">
         <div class="footer-container">
