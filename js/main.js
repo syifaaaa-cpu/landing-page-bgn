@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzg2NTMxMzAxLCJuYmYiOjE3ODY1MjIzMDEsImlhdCI6MTc4NjUyMjMwMSwianRpIjoiZlowNE1SZ2wxRE5WRzFoc2tNaTBmZm5mZFVPRTdDeHdUSy9QUXozVWVhMD0iLCJzZXNpZCI6ImZmZTVhNzFlM2JmMTdlNjk3NGMwMWU5NzE1NjVlZjAzIiwidXNpZCI6NTE4Miwic2lkIjoxNjl9.hOjQqz7WoE1fzWq-NjHOqcbEtJtk86noETiufvE95vo";
+  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzg2NTQ2MDkzLCJuYmYiOjE3ODY1MzcwOTMsImlhdCI6MTc4NjUzNzA5MywianRpIjoiY0xLR1lCWks1YUtZSUFWMUM2NHlqdmxBNkdDam9TWnl1K1B6S1JRaXJibz0iLCJzZXNpZCI6IjY2YmJiZmMwZTUyYTIzNGRiZmNkYjdhODYzYzBlNDI3IiwidXNpZCI6NTE4OSwic2lkIjoxNjl9.J_hqbSXcDhxVeWeqfyT1rd3O2hhzTqxZhA-YrhlvtGI";
   const timeStamp = new Date().getTime();
-  const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&wilayah=&actor=&city=&subject=&category=&limit=100&headline=&offset=0&token=${tokenUser}&_t=${timeStamp}`;
+ const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}&_t=${timeStamp}`;
 
   // Fungsi filter khusus berita BGN / MBG & pembagian kategorinya
   function getKategoriMatch(item, kategoriHalaman) {
@@ -100,76 +100,117 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((error) => console.error("Error Beranda:", error));
   }
 
-  // 2. Eksekusi untuk BERITA UTAMA & SIDEBAR (NEWS SECTION)
+ // 2. Eksekusi untuk BERITA UTAMA & SIDEBAR (NEWS SECTION)
   const mainNewsCard = document.querySelector(".news-main-card");
   const sidebarNewsList = document.querySelector(".news-list");
 
-  if (mainNewsCard || sidebarNewsList) {
+  function loadNewsSection() {
+    if (!mainNewsCard && !sidebarNewsList) return;
+
+    const dynamicTimestamp = new Date().getTime();
+    const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/feature/publicrelation/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}&_t=${dynamicTimestamp}`;
+
     fetch(apiUrl)
       .then((response) => response.json())
       .then((result) => {
         let semuaBerita = result.data || result;
-        if (!Array.isArray(semuaBerita) || semuaBerita.length === 0) return;
+        if (!Array.isArray(semuaBerita) || semuaBerita.length === 0) {
+          kosongkanHeadline();
+          return;
+        }
 
+        // 1. Ambil SEMUA berita yang memiliki status Headline (Headline == 1)
+        let daftarHeadline = semuaBerita.filter(item => item.Headline === 1 || item.Headline === "1" || item.Headline === true);
+
+        // Jika tidak ada sama sekali berita yang di-set headline (misal habis di-remove)
+        if (daftarHeadline.length === 0) {
+          kosongkanHeadline();
+          return;
+        }
+
+        // 2. Urutkan berdasarkan TicketId terbaru (paling besar) 
+        // supaya berita yang paling akhir/baru kamu jadikan headline otomatis jadi urutan pertama [0]
+        daftarHeadline.sort((a, b) => Number(b.TicketId || b.id || 0) - Number(a.TicketId || a.id || 0));
+
+        // Berita utama di kotak besar kiri adalah berita headline terbaru
+        const mainItem = daftarHeadline[0];
+        
+        // Berita headline selanjutnya (atau sisa headline) otomatis bergeser masuk ke sidebar kanan (maksimal 3)
+        const sidebarItems = daftarHeadline.slice(1, 4);
+
+        // --- RENDER MAIN CARD (KOTAK BESAR KIRI) ---
         if (mainNewsCard) {
-          const mainItem = semuaBerita[0];
-          const imageId = (mainItem.Attachment && mainItem.Attachment.length > 0) ? mainItem.Attachment[0] : "";
-          const imageSrc = imageId 
-            ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
-            : 'assets/berita-utama.jpg';
+          if (!mainItem) {
+            kosongkanHeadline();
+          } else {
+            const imageId = (mainItem.Attachment && mainItem.Attachment.length > 0) ? mainItem.Attachment[0] : "";
+            const imageSrc = imageId 
+              ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
+              : 'assets/berita-utama.jpg';
 
-          mainNewsCard.innerHTML = `
-            <div class="news-main-image">
-              <img src="${imageSrc}" alt="${mainItem.Subject || mainItem.title || 'Berita Utama'}" onerror="this.src='assets/berita-utama.jpg';" />
-              <div class="news-overlay">
-                <div class="news-badge">${mainItem.Category || mainItem.kategori || 'PENGAWASAN & EVALUASI DAPUR'}</div>
-                <div class="news-main-content">
-                  <h2>${mainItem.Subject || mainItem.title || mainItem.judul || "Tanpa Judul"}</h2>
-                  <div style="display: flex; flex-wrap: nowrap; gap: 15px; color: #64748b; font-size: 13px; white-space: nowrap; overflow: hidden;">
-                    <span style="overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-calendar"></i> ${mainItem.WaktuTerbit || mainItem.ReceiveDate || mainItem.Date || "Baru saja"}</span>
-                    <span style="overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;"><i class="fa-solid fa-location-dot"></i> ${mainItem.Wilayah || mainItem.City || mainItem.Location || "Pusat"}</span>
+            mainNewsCard.innerHTML = `
+              <div class="news-main-image" style="width: 100%; height: 520px; overflow: hidden; position: relative; border-radius: 12px;">
+                <img src="${imageSrc}" alt="${mainItem.Subject || 'Berita Utama'}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='assets/berita-utama.jpg';" />
+                <div class="news-overlay" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; box-sizing: border-box;">
+                  <div class="news-badge" style="background: #facc15; color: #1e293b; padding: 4px 12px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 10px; font-size: 12px; width: max-content;">${mainItem.Category || 'INFORMASI TERBARU'}</div>
+                  <div class="news-main-content">
+                    <h2 style="color: #ffffff; font-size: 22px; line-height: 1.35; margin-bottom: 12px; font-weight: 700;">${mainItem.Subject || "Tanpa Judul"}</h2>
+                    <div style="display: flex; flex-wrap: nowrap; gap: 15px; color: #cbd5e1; font-size: 13px; white-space: nowrap; overflow: hidden;">
+                      <span style="overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-calendar"></i> ${mainItem.ReceiveDate || mainItem.Date || "Baru saja"}</span>
+                      <span style="overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;"><i class="fa-solid fa-location-dot"></i> ${mainItem.Media || mainItem.Location || "Pusat"}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          `;
+            `;
+          }
         }
 
+        // --- RENDER SIDEBAR (KOTAK KECIL KANAN) ---
         if (sidebarNewsList) {
-          const sidebarItems = semuaBerita.slice(1, 4);
           sidebarNewsList.innerHTML = "";
 
           if (sidebarItems.length === 0) {
-            sidebarNewsList.innerHTML = `<p style="font-size: 13px; color: #6b7280; padding: 10px;">Belum ada berita lainnya.</p>`;
-            return;
-          }
+            sidebarNewsList.innerHTML = `<div style="color: #94a3b8; font-size: 13px; padding: 10px;">Belum ada berita headline tambahan</div>`;
+          } else {
+            sidebarItems.forEach((item) => {
+              const imageId = (item.Attachment && item.Attachment.length > 0) ? item.Attachment[0] : "";
+              const imageSrc = imageId 
+                ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
+                : 'assets/berita-1.jpg';
 
-          sidebarItems.forEach((item) => {
-            const imageId = (item.Attachment && item.Attachment.length > 0) ? item.Attachment[0] : "";
-            const imageSrc = imageId 
-              ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
-              : 'assets/berita-1.jpg';
-
-            const newsItemEl = document.createElement("div");
-            newsItemEl.className = "news-item";
-            newsItemEl.innerHTML = `
-              <img src="${imageSrc}" alt="Berita" onerror="this.src='assets/berita-1.jpg';" />
-              <div class="news-item-content" style="min-width: 0; overflow: hidden;">
-                <span class="item-category">${item.Category || item.kategori || 'INFORMASI TERBARU'}</span>
-                <h4 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.Subject || item.title || item.judul || "Tanpa Judul"}</h4>
-                <div style="display: flex; flex-wrap: nowrap; gap: 10px; color: #64748b; font-size: 11px; white-space: nowrap; overflow: hidden;">
-                  <span style="overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-calendar"></i> ${item.WaktuTerbit || item.ReceiveDate || item.Date || "Baru saja"}</span>
-                  <span style="overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;"><i class="fa-solid fa-location-dot"></i> ${item.Wilayah || item.City || item.Location || "Pusat"}</span>
+              const newsItemEl = document.createElement("div");
+              newsItemEl.className = "news-item";
+              newsItemEl.innerHTML = `
+                <img src="${imageSrc}" alt="Berita" onerror="this.src='assets/berita-1.jpg';" />
+                <div class="news-item-content" style="min-width: 0; overflow: hidden; flex: 1;">
+                  <span class="item-category">${item.Category || 'INFORMASI TERBARU'}</span>
+                  <h4 style="margin: 4px 0; font-size: 14px; font-weight: 600; line-height: 1.4;" title="${item.Subject || ""}">${item.Subject || "Tanpa Judul"}</h4>
+                  <div style="display: flex; flex-wrap: nowrap; gap: 10px; color: #64748b; font-size: 11px; white-space: nowrap; overflow: hidden;">
+                    <span style="overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-calendar"></i> ${item.ReceiveDate || item.Date || "Baru saja"}</span>
+                    <span style="overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;"><i class="fa-solid fa-location-dot"></i> ${item.Media || item.Location || "Pusat"}</span>
+                  </div>
                 </div>
-              </div>
-            `;
-            sidebarNewsList.appendChild(newsItemEl);
-          });
+              `;
+              sidebarNewsList.appendChild(newsItemEl);
+            });
+          }
         }
       })
       .catch((error) => console.error("Error News Section:", error));
   }
 
+  function kosongkanHeadline() {
+    if (mainNewsCard) {
+      mainNewsCard.innerHTML = `<div style="width: 100%; height: 520px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px;">Belum ada berita utama</div>`;
+    }
+    if (sidebarNewsList) {
+      sidebarNewsList.innerHTML = "";
+    }
+  }
+
+  loadNewsSection();
+  setInterval(loadNewsSection, 15000);
   // 3. Eksekusi untuk HALAMAN DETAIL BERITA
   const containerBerita = document.getElementById("container-berita");
   const sidebarDetailContent = document.getElementById("sidebar-detail-content");
