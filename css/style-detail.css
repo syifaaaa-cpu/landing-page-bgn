@@ -429,3 +429,35 @@ body {
         text-align: center;
     }
 }
+/* Styling untuk wadah kartu berita dari API */
+#container-berita article {
+    background: #ffffff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efek sedikit terangkat saat kursor mendekati berita */
+#container-berita article:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Judul Berita */
+#container-berita article h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+/* Paragraf / Isi Berita */
+#container-berita article p {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.6;
+}
