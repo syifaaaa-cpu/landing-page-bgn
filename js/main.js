@@ -130,7 +130,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // 2. Urutkan berdasarkan TicketId terbaru (paling besar) 
         // supaya berita yang paling akhir/baru kamu jadikan headline otomatis jadi urutan pertama [0]
-        daftarHeadline.sort((a, b) => Number(b.TicketId || b.id || 0) - Number(a.TicketId || a.id || 0));
+       // Urutkan supaya berita terbaru/paling atas otomatis jadi [0] (masuk ke kotak besar)
+        daftarHeadline.sort((a, b) => Number(a.TicketId || a.id || 0) - Number(b.TicketId || b.id || 0));
 
         // Berita utama di kotak besar kiri adalah berita headline terbaru
         const mainItem = daftarHeadline[0];
