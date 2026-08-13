@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzg2NTQ2MDkzLCJuYmYiOjE3ODY1MzcwOTMsImlhdCI6MTc4NjUzNzA5MywianRpIjoiY0xLR1lCWks1YUtZSUFWMUM2NHlqdmxBNkdDam9TWnl1K1B6S1JRaXJibz0iLCJzZXNpZCI6IjY2YmJiZmMwZTUyYTIzNGRiZmNkYjdhODYzYzBlNDI3IiwidXNpZCI6NTE4OSwic2lkIjoxNjl9.J_hqbSXcDhxVeWeqfyT1rd3O2hhzTqxZhA-YrhlvtGI";
+  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzg2NTkzNDA5LCJuYmYiOjE3ODY1ODQ0MDksImlhdCI6MTc4NjU4NDQwOSwianRpIjoiSUEwZmZWRVRqRFFBZU5nZGxtVzhHUU9OL1BkOUV0em1YZVlDWEtFTmhuOD0iLCJzZXNpZCI6IjViNzgyMDYwZDhhMTA1Yzk0OGNlM2ZlOTU1MWI2NWQ1IiwidXNpZCI6NTE5Niwic2lkIjoxNjl9.fsweGEeLuvQ1Nu8Q0GDZ4XOtA9t_sZ4jeRodjjzUDds";
   const timeStamp = new Date().getTime();
  const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}&_t=${timeStamp}`;
 
