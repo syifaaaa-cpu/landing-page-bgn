@@ -200,15 +200,21 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((error) => console.error("Error News Section:", error));
   }
 
-  function kosongkanHeadline() {
+ function kosongkanHeadline() {
+    // Kotak besar kiri (tingginya disesuaikan jadi pas 490px agar tidak ada sisa putih berlebih)
     if (mainNewsCard) {
-      mainNewsCard.innerHTML = `<div style="width: 100%; height: 520px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px;">Belum ada berita utama</div>`;
+      mainNewsCard.innerHTML = `<div style="width: 100%; height: 490px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px;">Belum ada berita utama</div>`;
     }
+    
+    // Bagian kanan (3 kotak kecil dengan tinggi masing-masing sekitar 150px agar sejajar pas)
     if (sidebarNewsList) {
-      sidebarNewsList.innerHTML = "";
+      sidebarNewsList.innerHTML = `
+        <div style="width: 100%; height: 150px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Belum ada berita</div>
+        <div style="width: 100%; height: 150px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Belum ada berita</div>
+        <div style="width: 100%; height: 150px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px;">Belum ada berita</div>
+      `;
     }
   }
-
   loadNewsSection();
   setInterval(loadNewsSection, 15000);
   // 3. Eksekusi untuk HALAMAN DETAIL BERITA
