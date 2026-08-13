@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        
         // 1. Ambil SEMUA berita yang memiliki status Headline (Headline == 1)
         let daftarHeadline = semuaBerita.filter(item => item.Headline === 1 || item.Headline === "1" || item.Headline === true);
 
@@ -129,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // 2. Urutkan berdasarkan TicketId terbaru (paling besar ke kecil) 
+        // 2. Urutkan berdasarkan TicketId terbaru (paling besar) 
         // supaya berita yang paling akhir/baru kamu jadikan headline otomatis jadi urutan pertama [0]
         daftarHeadline.sort((a, b) => Number(b.TicketId || b.id || 0) - Number(a.TicketId || a.id || 0));
 
@@ -138,6 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Berita headline selanjutnya (atau sisa headline) otomatis bergeser masuk ke sidebar kanan (maksimal 3)
         const sidebarItems = daftarHeadline.slice(1, 4);
+
         // --- RENDER MAIN CARD (KOTAK BESAR KIRI) ---
         if (mainNewsCard) {
           if (!mainItem) {
