@@ -1,44 +1,49 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzg3ODkxMTUzLCJuYmYiOjE3ODc4ODIxNTMsImlhdCI6MTc4Nzg4MjE1MywianRpIjoiVFR1YmYwaVgxKysycjliY0FsNUREbVRCb1FoaTV2QmtRS2s4SEI5SW5vdz0iLCJzZXNpZCI6ImUzMzM4N2YxNDg0NzYxNDVlMDZhZDE3NGE0MmYwMGY4IiwidXNpZCI6NTUwNywic2lkIjoxNjl9.9g5D5AuOs_NOa1oHWdsXVjbeIsNj3bid9yW31Sv7p_k";
-  const timeStamp = new Date().getTime();
-const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}`;
+  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjU3NSwiZXhwIjoxNzg4MTA3NTU2LCJuYmYiOjE3ODgwOTg1NTYsImlhdCI6MTc4ODA5ODU1NiwianRpIjoibGluNjYrUXE4aGZ3VHZzZmkveWw2R3NOUjQ4NjVaMEl3Rk14M2hvLzJ0ND0iLCJzZXNpZCI6IjkwMzg3ZmY3NTZmN2IzYzY5NGQzYzhmMjRiNmY5MTZiIiwidXNpZCI6MTE5NzUsInNpZCI6MTY5fQ.AhR00z5qAgvCy-fxnL2moYYqN-E-L2Z_F6g9auIU2os";
+  
+  // URL API standar (token dipindah ke Header Authorization)
+  const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100`;
+
+  // Konfigurasi Header untuk fetch request
+  const fetchOptions = {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${tokenUser}`,
+      'Content-Type': 'application/json'
+    }
+  };
+
   // Fungsi filter khusus berita BGN / MBG & pembagian kategorinya
   function getKategoriMatch(item, kategoriHalaman) {
-    const subject = (item.Subject || item.title || item.judul || "").toLowerCase();
-    const content = (item.Content || item.content || item.isi || "").toLowerCase();
-    const categoryField = (item.Category || item.category || item.kategori || "").toLowerCase();
-    const textGabungan = `${subject} ${content} ${categoryField}`;
+  const subject = (item.Subject || item.title || item.judul || "").toLowerCase();
+  const content = (item.Content || item.content || item.isi || "").toLowerCase();
+  const categoryField = (item.Category || item.category || item.kategori || "").toLowerCase();
+  const textGabungan = subject + " " + content + " " + categoryField;
 
-    const isBeritaBGN = textGabungan.includes("bgn") || 
-                        textGabungan.includes("badan gizi") || 
-                        textGabungan.includes("makan bergizi") || 
-                        textGabungan.includes("makan gratis") || 
-                        textGabungan.includes("mbg") || 
-                        textGabungan.includes("sppg") || 
-                        textGabungan.includes("satgas gizi") ||
-                        textGabungan.includes("porsi");
+  // Jika halaman utama / tidak ada kategori khusus, tampilkan semua
+  if (!kategoriHalaman) return true;
 
-    if (!isBeritaBGN) return false;
-
-    if (kategoriHalaman === "mbg") {
-      return textGabungan.includes("makan bergizi") || textGabungan.includes("makan gratis") || textGabungan.includes("mbg") || textGabungan.includes("gizi") || textGabungan.includes("menu");
-    } 
-    else if (kategoriHalaman === "korupsi") {
-      return textGabungan.includes("korupsi") || textGabungan.includes("suap") || textGabungan.includes("gratifikasi") || textGabungan.includes("integritas") || textGabungan.includes("pengawasan") || textGabungan.includes("penindakan") || textGabungan.includes("penyalahgunaan");
-    } 
-    else if (kategoriHalaman === "tatakelola") {
-      return textGabungan.includes("tata kelola") || textGabungan.includes("birokrasi") || textGabungan.includes("operasional") || textGabungan.includes("dapur") || textGabungan.includes("sanitasi") || textGabungan.includes("hygiene") || textGabungan.includes("logistik") || textGabungan.includes("standar");
-    } 
-    else if (kategoriHalaman === "transparansi") {
-      return textGabungan.includes("transparansi") || textGabungan.includes("informasi publik") || textGabungan.includes("portal") || textGabungan.includes("real-time") || textGabungan.includes("pusat layanan") || textGabungan.includes("pengaduan");
-    }
-    return false;
+  // Filter fleksibel berdasarkan halaman kategori
+  if (kategoriHalaman === "mbg") {
+    return textGabungan.includes("makan") || textGabungan.includes("gizi") || textGabungan.includes("mbg") || textGabungan.includes("bgn") || textGabungan.includes("menu");
+  } 
+  else if (kategoriHalaman === "korupsi") {
+    return textGabungan.includes("korupsi") || textGabungan.includes("suap") || textGabungan.includes("pengawasan") || textGabungan.includes("integritas") || textGabungan.includes("hukum") || textGabungan.includes("transparansi");
+  } 
+  else if (kategoriHalaman === "tatakelola") {
+    return textGabungan.includes("kelola") || textGabungan.includes("dapur") || textGabungan.includes("operasional") || textGabungan.includes("logistik") || textGabungan.includes("standar") || textGabungan.includes("program");
+  } 
+  else if (kategoriHalaman === "transparansi") {
+    return textGabungan.includes("transparansi") || textGabungan.includes("informasi") || textGabungan.includes("publik") || textGabungan.includes("laporan") || textGabungan.includes("pusat");
   }
+  
+  return true;
+}
 
   // 1. Eksekusi untuk HALAMAN UTAMA (PRIORITY GRID / INDEX)
   const priorityContainer = document.querySelector(".priority-grid");
   if (priorityContainer) {
-   fetch(apiUrl)
+   fetch(apiUrl, fetchOptions)
     .then((response) => response.json())
     .then((dataRes) => {
       let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
@@ -107,10 +112,7 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
   function loadNewsSection() {
     if (!mainNewsCard && !sidebarNewsList) return;
 
-    const dynamicTimestamp = new Date().getTime();
-    //const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/feature/publicrelation/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}&_t=${dynamicTimestamp}`;
-
-   fetch(apiUrl)
+   fetch(apiUrl, fetchOptions)
     .then((response) => response.json())
     .then((dataRes) => {
       let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
@@ -120,26 +122,18 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
           return;
         }
 
-        // 1. Ambil SEMUA berita yang memiliki status Headline (Headline == 1)
         let daftarHeadline = semuaBerita.filter(item => item.Headline === 1 || item.Headline === "1" || item.Headline === true);
 
-        // Jika tidak ada sama sekali berita yang di-set headline (misal habis di-remove)
         if (daftarHeadline.length === 0) {
           kosongkanHeadline();
           return;
         }
 
-        // 2. Urutkan berdasarkan TicketId terbaru (paling besar) 
-        // supaya berita yang paling akhir/baru kamu jadikan headline otomatis jadi urutan pertama [0]
         daftarHeadline.sort((a, b) => Number(b.TicketId || b.id || 0) - Number(a.TicketId || a.id || 0));
 
-        // Berita utama di kotak besar kiri adalah berita headline terbaru
         const mainItem = daftarHeadline[0];
-        
-        // Berita headline selanjutnya (atau sisa headline) otomatis bergeser masuk ke sidebar kanan (maksimal 3)
         const sidebarItems = daftarHeadline.slice(1, 4);
 
-        // --- RENDER MAIN CARD (KOTAK BESAR KIRI) ---
         if (mainNewsCard) {
           if (!mainItem) {
             kosongkanHeadline();
@@ -167,7 +161,6 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
           }
         }
 
-        // --- RENDER SIDEBAR (KOTAK KECIL KANAN) ---
         if (sidebarNewsList) {
           sidebarNewsList.innerHTML = "";
 
@@ -201,13 +194,10 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
       .catch((error) => console.error("Error News Section:", error));
   }
 
- function kosongkanHeadline() {
-    // Kotak besar kiri (tingginya disesuaikan jadi pas 490px agar tidak ada sisa putih berlebih)
+  function kosongkanHeadline() {
     if (mainNewsCard) {
       mainNewsCard.innerHTML = `<div style="width: 100%; height: 490px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px;">Belum ada berita utama</div>`;
     }
-    
-    // Bagian kanan (3 kotak kecil dengan tinggi masing-masing sekitar 150px agar sejajar pas)
     if (sidebarNewsList) {
       sidebarNewsList.innerHTML = `
         <div style="width: 100%; height: 150px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Belum ada berita</div>
@@ -216,8 +206,10 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
       `;
     }
   }
+
   loadNewsSection();
   setInterval(loadNewsSection, 15000);
+
   // 3. Eksekusi untuk HALAMAN DETAIL BERITA
   const containerBerita = document.getElementById("container-berita");
   const sidebarDetailContent = document.getElementById("sidebar-detail-content");
@@ -236,7 +228,7 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
       kategoriHalaman = "mbg";
     }
 
-  fetch(apiUrl)
+   fetch(apiUrl, fetchOptions)
     .then((response) => response.json())
     .then((dataRes) => {
       let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
@@ -255,7 +247,6 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
           return;
         }
 
-        // Tampilkan berita pertama di sidebar kanan saat halaman dimuat
         if (filteredBerita.length > 0 && sidebarDetailContent) {
           const firstItem = filteredBerita[0];
           const firstImgId = (firstItem.Attachment && firstItem.Attachment.length > 0) ? firstItem.Attachment[0] : "";
@@ -284,7 +275,6 @@ const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&endda
           `;
         }
 
-        // Render daftar berita di sebelah kiri
         filteredBerita.forEach((item) => {
           const article = document.createElement("article");
           const tanggalBerita = item.WaktuTerbit || item.ReceiveDate || item.Date || "Tanggal tidak tersedia";
