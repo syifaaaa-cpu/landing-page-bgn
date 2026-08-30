@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzg2Njg0MTUwLCJuYmYiOjE3ODY2NzUxNTAsImlhdCI6MTc4NjY3NTE1MCwianRpIjoiSE9UemtURzM2MFRLbEhGcnpXYmEwUWRhTkF1VGI3T3EyQ3FQdDRJWXJqYz0iLCJzZXNpZCI6ImU4OWRiZjE4YzUzMmYwNWJiZDk3ZDE1ZTk1NDk0MzliIiwidXNpZCI6NTIzNiwic2lkIjoxNjl9.FNuS2aKWIXzI0PX30H0ixLf5zzy_eYbFy8d0qefq_y4";
+  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzg3ODkxMTUzLCJuYmYiOjE3ODc4ODIxNTMsImlhdCI6MTc4Nzg4MjE1MywianRpIjoiVFR1YmYwaVgxKysycjliY0FsNUREbVRCb1FoaTV2QmtRS2s4SEI5SW5vdz0iLCJzZXNpZCI6ImUzMzM4N2YxNDg0NzYxNDVlMDZhZDE3NGE0MmYwMGY4IiwidXNpZCI6NTUwNywic2lkIjoxNjl9.9g5D5AuOs_NOa1oHWdsXVjbeIsNj3bid9yW31Sv7p_k";
   const timeStamp = new Date().getTime();
- const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}&_t=${timeStamp}`;
-
+const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}`;
   // Fungsi filter khusus berita BGN / MBG & pembagian kategorinya
   function getKategoriMatch(item, kategoriHalaman) {
     const subject = (item.Subject || item.title || item.judul || "").toLowerCase();
@@ -39,11 +38,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // 1. Eksekusi untuk HALAMAN UTAMA (PRIORITY GRID / INDEX)
   const priorityContainer = document.querySelector(".priority-grid");
   if (priorityContainer) {
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((result) => {
-        let semuaBerita = result.data || result;
-        if (!Array.isArray(semuaBerita)) return;
+   fetch(apiUrl)
+    .then((response) => response.json())
+    .then((dataRes) => {
+      let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
+      let semuaBerita = actualData.data || actualData;
+      if (!Array.isArray(semuaBerita)) return;
 
         const categories = [
           { id: "card-1", key: "mbg" },
@@ -108,12 +108,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!mainNewsCard && !sidebarNewsList) return;
 
     const dynamicTimestamp = new Date().getTime();
-    const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/feature/publicrelation/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}&_t=${dynamicTimestamp}`;
+    //const apiUrl = `https://corsproxy.io/?https://dev.onebox.co.id/feature/publicrelation/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100&token=${tokenUser}&_t=${dynamicTimestamp}`;
 
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((result) => {
-        let semuaBerita = result.data || result;
+   fetch(apiUrl)
+    .then((response) => response.json())
+    .then((dataRes) => {
+      let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
+      let semuaBerita = actualData.data || actualData;
         if (!Array.isArray(semuaBerita) || semuaBerita.length === 0) {
           kosongkanHeadline();
           return;
@@ -235,11 +236,12 @@ document.addEventListener("DOMContentLoaded", function () {
       kategoriHalaman = "mbg";
     }
 
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((result) => {
-        let semuaBerita = result.data || result;
-        containerBerita.innerHTML = "";
+  fetch(apiUrl)
+    .then((response) => response.json())
+    .then((dataRes) => {
+      let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
+      let semuaBerita = actualData.data || actualData;
+      containerBerita.innerHTML = "";
 
         if (!Array.isArray(semuaBerita) || semuaBerita.length === 0) {
           containerBerita.innerHTML = `<p style="padding: 20px; text-align: center; color: #6b7280;">Belum ada berita.</p>`;
