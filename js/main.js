@@ -1,73 +1,111 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzkzMjcxNTA1LCJuYmYiOjE3OTMyNjI1MDUsImlhdCI6MTc5MzI2MjUwNSwianRpIjoiOHFnaCtUeGMzQnVKZFRQdGx5U3J6Qm9SUy93dUh2cmJLNFd5OG9tMWQ0OD0iLCJzZXNpZCI6Ijk2ZTNmODdkMDljZDdiOTg2MDA3NjYzNDgyZWViYWRlIiwidXNpZCI6NjIyOCwic2lkIjoxNjl9.gNrQrhp6b5BzYSx4EfifAeAhCodpOeyeReKvTSB1Znk";
-  
-  // URL API standar (token dipindah ke Header Authorization)
-  const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100`;
+// URL diarahkan ke backend lokal Node.js kita
+ const apiUrl = `https://backend-bgn.vercel.app/api/news/get`;
 
-  // Konfigurasi Header untuk fetch request
+  // Konfigurasi Fetch dengan credentials: 'include' agar HttpOnly Cookie ikut terkirim otomatis
   const fetchOptions = {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${tokenUser}`,
-      'Content-Type': 'application/json'
-    }
+    method: "GET",
+    credentials: "include", // KUNCI UTAMA: Menyertakan Cookie HttpOnly secara otomatis
   };
 
   // Fungsi filter khusus berita BGN / MBG & pembagian kategorinya
   function getKategoriMatch(item, kategoriHalaman) {
-  const subject = (item.Subject || item.title || item.judul || "").toLowerCase();
-  const content = (item.Content || item.content || item.isi || "").toLowerCase();
-  const categoryField = (item.Category || item.category || item.kategori || "").toLowerCase();
-  const textGabungan = subject + " " + content + " " + categoryField;
+    const subject = (
+      item.Subject ||
+      item.title ||
+      item.judul ||
+      ""
+    ).toLowerCase();
+    const content = (
+      item.Content ||
+      item.content ||
+      item.isi ||
+      ""
+    ).toLowerCase();
+    const categoryField = (
+      item.Category ||
+      item.category ||
+      item.kategori ||
+      ""
+    ).toLowerCase();
+    const textGabungan = subject + " " + content + " " + categoryField;
 
-  // Jika halaman utama / tidak ada kategori khusus, tampilkan semua
-  if (!kategoriHalaman) return true;
+    // Jika halaman utama / tidak ada kategori khusus, tampilkan semua
+    if (!kategoriHalaman) return true;
 
-  // Filter fleksibel berdasarkan halaman kategori
-  if (kategoriHalaman === "mbg") {
-    return textGabungan.includes("makan") || textGabungan.includes("gizi") || textGabungan.includes("mbg") || textGabungan.includes("bgn") || textGabungan.includes("menu");
-  } 
-  else if (kategoriHalaman === "korupsi") {
-    return textGabungan.includes("korupsi") || textGabungan.includes("suap") || textGabungan.includes("pengawasan") || textGabungan.includes("integritas") || textGabungan.includes("hukum") || textGabungan.includes("transparansi");
-  } 
-  else if (kategoriHalaman === "tatakelola") {
-    return textGabungan.includes("kelola") || textGabungan.includes("dapur") || textGabungan.includes("operasional") || textGabungan.includes("logistik") || textGabungan.includes("standar") || textGabungan.includes("program");
-  } 
-  else if (kategoriHalaman === "transparansi") {
-    return textGabungan.includes("transparansi") || textGabungan.includes("informasi") || textGabungan.includes("publik") || textGabungan.includes("laporan") || textGabungan.includes("pusat");
+    // Filter fleksibel berdasarkan halaman kategori
+    if (kategoriHalaman === "mbg") {
+      return (
+        textGabungan.includes("makan") ||
+        textGabungan.includes("gizi") ||
+        textGabungan.includes("mbg") ||
+        textGabungan.includes("bgn") ||
+        textGabungan.includes("menu")
+      );
+    } else if (kategoriHalaman === "korupsi") {
+      return (
+        textGabungan.includes("korupsi") ||
+        textGabungan.includes("suap") ||
+        textGabungan.includes("pengawasan") ||
+        textGabungan.includes("integritas") ||
+        textGabungan.includes("hukum") ||
+        textGabungan.includes("transparansi")
+      );
+    } else if (kategoriHalaman === "tatakelola") {
+      return (
+        textGabungan.includes("kelola") ||
+        textGabungan.includes("dapur") ||
+        textGabungan.includes("operasional") ||
+        textGabungan.includes("logistik") ||
+        textGabungan.includes("standar") ||
+        textGabungan.includes("program")
+      );
+    } else if (kategoriHalaman === "transparansi") {
+      return (
+        textGabungan.includes("transparansi") ||
+        textGabungan.includes("informasi") ||
+        textGabungan.includes("publik") ||
+        textGabungan.includes("laporan") ||
+        textGabungan.includes("pusat")
+      );
+    }
+
+    return true;
   }
-  
-  return true;
-}
 
   // 1. Eksekusi untuk HALAMAN UTAMA (PRIORITY GRID / INDEX)
   const priorityContainer = document.querySelector(".priority-grid");
   if (priorityContainer) {
-   fetch(apiUrl, fetchOptions)
-    .then((response) => response.json())
-    .then((dataRes) => {
-      let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
-      let semuaBerita = actualData.data || actualData;
-      if (!Array.isArray(semuaBerita)) return;
+    fetch(apiUrl, fetchOptions)
+      .then((response) => response.json())
+      .then((dataRes) => {
+        let actualData = dataRes.contents
+          ? JSON.parse(dataRes.contents)
+          : dataRes;
+        let semuaBerita = actualData.data || actualData;
+        if (!Array.isArray(semuaBerita)) return;
 
         const categories = [
           { id: "card-1", key: "mbg" },
           { id: "card-2", key: "korupsi" },
           { id: "card-3", key: "tatakelola" },
-          { id: "card-4", key: "transparansi" }
+          { id: "card-4", key: "transparansi" },
         ];
 
         categories.forEach((cat) => {
           const cardElement = document.getElementById(cat.id);
           if (!cardElement) return;
 
-          const filtered = semuaBerita.filter((item) => getKategoriMatch(item, cat.key));
+          const filtered = semuaBerita.filter((item) =>
+            getKategoriMatch(item, cat.key),
+          );
 
           const badge = cardElement.querySelector(".badge-berita");
           if (badge) badge.innerText = `${filtered.length} Berita`;
 
           const top3 = filtered.slice(0, 3);
-          const newsListContainer = cardElement.querySelector(".card-news-list");
+          const newsListContainer =
+            cardElement.querySelector(".card-news-list");
           if (!newsListContainer) return;
 
           newsListContainer.innerHTML = "";
@@ -77,13 +115,19 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           top3.forEach((item) => {
-            const tanggal = item.WaktuTerbit || item.ReceiveDate || item.Date || "Baru saja";
-            const lokasi = item.Wilayah || item.City || item.Location || "Pusat";
-            const judul = item.Subject || item.title || item.judul || "Tanpa Judul";
-            const imageId = (item.Attachment && item.Attachment.length > 0) ? item.Attachment[0] : "";
-            const imageSrc = imageId 
-              ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
-              : 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80';
+            const tanggal =
+              item.WaktuTerbit || item.ReceiveDate || item.Date || "Baru saja";
+            const lokasi =
+              item.Wilayah || item.City || item.Location || "Pusat";
+            const judul =
+              item.Subject || item.title || item.judul || "Tanpa Judul";
+            const imageId =
+              item.Attachment && item.Attachment.length > 0
+                ? item.Attachment[0]
+                : "";
+            const imageSrc = imageId
+              ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}`
+              : "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80";
 
             const miniItem = document.createElement("div");
             miniItem.className = "mini-news-item";
@@ -105,31 +149,41 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch((error) => console.error("Error Beranda:", error));
   }
 
- // 2. Eksekusi untuk BERITA UTAMA & SIDEBAR (NEWS SECTION)
+  // 2. Eksekusi untuk BERITA UTAMA & SIDEBAR (NEWS SECTION)
   const mainNewsCard = document.querySelector(".news-main-card");
   const sidebarNewsList = document.querySelector(".news-list");
 
   function loadNewsSection() {
     if (!mainNewsCard && !sidebarNewsList) return;
 
-   fetch(apiUrl, fetchOptions)
-    .then((response) => response.json())
-    .then((dataRes) => {
-      let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
-      let semuaBerita = actualData.data || actualData;
+    fetch(apiUrl, fetchOptions)
+      .then((response) => response.json())
+      .then((dataRes) => {
+        let actualData = dataRes.contents
+          ? JSON.parse(dataRes.contents)
+          : dataRes;
+        let semuaBerita = actualData.data || actualData;
         if (!Array.isArray(semuaBerita) || semuaBerita.length === 0) {
           kosongkanHeadline();
           return;
         }
 
-        let daftarHeadline = semuaBerita.filter(item => item.Headline === 1 || item.Headline === "1" || item.Headline === true);
+        let daftarHeadline = semuaBerita.filter(
+          (item) =>
+            item.Headline === 1 ||
+            item.Headline === "1" ||
+            item.Headline === true,
+        );
 
         if (daftarHeadline.length === 0) {
           kosongkanHeadline();
           return;
         }
 
-        daftarHeadline.sort((a, b) => Number(b.TicketId || b.id || 0) - Number(a.TicketId || a.id || 0));
+        daftarHeadline.sort(
+          (a, b) =>
+            Number(b.TicketId || b.id || 0) - Number(a.TicketId || a.id || 0),
+        );
 
         const mainItem = daftarHeadline[0];
         const sidebarItems = daftarHeadline.slice(1, 4);
@@ -138,16 +192,19 @@ document.addEventListener("DOMContentLoaded", function () {
           if (!mainItem) {
             kosongkanHeadline();
           } else {
-            const imageId = (mainItem.Attachment && mainItem.Attachment.length > 0) ? mainItem.Attachment[0] : "";
-            const imageSrc = imageId 
-              ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
-              : 'assets/berita-utama.jpg';
+            const imageId =
+              mainItem.Attachment && mainItem.Attachment.length > 0
+                ? mainItem.Attachment[0]
+                : "";
+            const imageSrc = imageId
+              ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}`
+              : "assets/berita-utama.jpg";
 
             mainNewsCard.innerHTML = `
               <div class="news-main-image" style="width: 100%; height: 520px; overflow: hidden; position: relative; border-radius: 12px;">
-                <img src="${imageSrc}" alt="${mainItem.Subject || 'Berita Utama'}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='assets/berita-utama.jpg';" />
+                <img src="${imageSrc}" alt="${mainItem.Subject || "Berita Utama"}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='assets/berita-utama.jpg';" />
                 <div class="news-overlay" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%); display: flex; flex-direction: column; justify-content: flex-end; padding: 25px; box-sizing: border-box;">
-                  <div class="news-badge" style="background: #facc15; color: #1e293b; padding: 4px 12px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 10px; font-size: 12px; width: max-content;">${mainItem.Category || 'INFORMASI TERBARU'}</div>
+                  <div class="news-badge" style="background: #facc15; color: #1e293b; padding: 4px 12px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 10px; font-size: 12px; width: max-content;">${mainItem.Category || "INFORMASI TERBARU"}</div>
                   <div class="news-main-content">
                     <h2 style="color: #ffffff; font-size: 22px; line-height: 1.35; margin-bottom: 12px; font-weight: 700;">${mainItem.Subject || "Tanpa Judul"}</h2>
                     <div style="display: flex; flex-wrap: nowrap; gap: 15px; color: #cbd5e1; font-size: 13px; white-space: nowrap; overflow: hidden;">
@@ -168,17 +225,20 @@ document.addEventListener("DOMContentLoaded", function () {
             sidebarNewsList.innerHTML = `<div style="color: #94a3b8; font-size: 13px; padding: 10px;">Belum ada berita headline tambahan</div>`;
           } else {
             sidebarItems.forEach((item) => {
-              const imageId = (item.Attachment && item.Attachment.length > 0) ? item.Attachment[0] : "";
-              const imageSrc = imageId 
-                ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
-                : 'assets/berita-1.jpg';
+              const imageId =
+                item.Attachment && item.Attachment.length > 0
+                  ? item.Attachment[0]
+                  : "";
+              const imageSrc = imageId
+                ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}`
+                : "assets/berita-1.jpg";
 
               const newsItemEl = document.createElement("div");
               newsItemEl.className = "news-item";
               newsItemEl.innerHTML = `
                 <img src="${imageSrc}" alt="Berita" onerror="this.src='assets/berita-1.jpg';" />
                 <div class="news-item-content" style="min-width: 0; overflow: hidden; flex: 1;">
-                  <span class="item-category">${item.Category || 'INFORMASI TERBARU'}</span>
+                  <span class="item-category">${item.Category || "INFORMASI TERBARU"}</span>
                   <h4 style="margin: 4px 0; font-size: 14px; font-weight: 600; line-height: 1.4;" title="${item.Subject || ""}">${item.Subject || "Tanpa Judul"}</h4>
                   <div style="display: flex; flex-wrap: nowrap; gap: 10px; color: #64748b; font-size: 11px; white-space: nowrap; overflow: hidden;">
                     <span style="overflow: hidden; text-overflow: ellipsis;"><i class="fa-regular fa-calendar"></i> ${item.ReceiveDate || item.Date || "Baru saja"}</span>
@@ -212,7 +272,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 3. Eksekusi untuk HALAMAN DETAIL BERITA
   const containerBerita = document.getElementById("container-berita");
-  const sidebarDetailContent = document.getElementById("sidebar-detail-content");
+  const sidebarDetailContent = document.getElementById(
+    "sidebar-detail-content",
+  );
 
   if (containerBerita) {
     const currentFileName = window.location.pathname.split("/").pop();
@@ -228,19 +290,23 @@ document.addEventListener("DOMContentLoaded", function () {
       kategoriHalaman = "mbg";
     }
 
-   fetch(apiUrl, fetchOptions)
-    .then((response) => response.json())
-    .then((dataRes) => {
-      let actualData = dataRes.contents ? JSON.parse(dataRes.contents) : dataRes;
-      let semuaBerita = actualData.data || actualData;
-      containerBerita.innerHTML = "";
+    fetch(apiUrl, fetchOptions)
+      .then((response) => response.json())
+      .then((dataRes) => {
+        let actualData = dataRes.contents
+          ? JSON.parse(dataRes.contents)
+          : dataRes;
+        let semuaBerita = actualData.data || actualData;
+        containerBerita.innerHTML = "";
 
         if (!Array.isArray(semuaBerita) || semuaBerita.length === 0) {
           containerBerita.innerHTML = `<p style="padding: 20px; text-align: center; color: #6b7280;">Belum ada berita.</p>`;
           return;
         }
 
-        let filteredBerita = semuaBerita.filter((item) => getKategoriMatch(item, kategoriHalaman));
+        let filteredBerita = semuaBerita.filter((item) =>
+          getKategoriMatch(item, kategoriHalaman),
+        );
 
         if (filteredBerita.length === 0) {
           containerBerita.innerHTML = `<p style="padding: 20px; text-align: center; color: #6b7280;">Berita terkait BGN tidak tersedia.</p>`;
@@ -249,13 +315,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (filteredBerita.length > 0 && sidebarDetailContent) {
           const firstItem = filteredBerita[0];
-          const firstImgId = (firstItem.Attachment && firstItem.Attachment.length > 0) ? firstItem.Attachment[0] : "";
-          const firstImgSrc = firstImgId ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${firstImgId}` : 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80';
-          const firstTanggal = firstItem.WaktuTerbit || firstItem.ReceiveDate || firstItem.Date || "Baru saja";
-          const firstLokasi = firstItem.Wilayah || firstItem.City || firstItem.Location || "Pusat";
+          const firstImgId =
+            firstItem.Attachment && firstItem.Attachment.length > 0
+              ? firstItem.Attachment[0]
+              : "";
+          const firstImgSrc = firstImgId
+            ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${firstImgId}`
+            : "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80";
+          const firstTanggal =
+            firstItem.WaktuTerbit ||
+            firstItem.ReceiveDate ||
+            firstItem.Date ||
+            "Baru saja";
+          const firstLokasi =
+            firstItem.Wilayah ||
+            firstItem.City ||
+            firstItem.Location ||
+            "Pusat";
           const firstActor = firstItem.Actor || firstItem.actor || "-";
-          const firstTag = firstItem.Tag || firstItem.tag || firstItem.Category || firstItem.category || "Umum";
-          
+          const firstTag =
+            firstItem.Tag ||
+            firstItem.tag ||
+            firstItem.Category ||
+            firstItem.category ||
+            "Umum";
+
           sidebarDetailContent.innerHTML = `
             <img src="${firstImgSrc}" alt="Foto Berita" style="width: 100%; height: 200px; object-fit: cover; border-radius: 6px; margin-bottom: 12px;">
             <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 8px; line-height: 1.4;">
@@ -277,25 +361,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
         filteredBerita.forEach((item) => {
           const article = document.createElement("article");
-          const tanggalBerita = item.WaktuTerbit || item.ReceiveDate || item.Date || "Tanggal tidak tersedia";
-          const lokasiBerita = item.Wilayah || item.City || item.Location || "ANTARA";
-          const judul = item.Subject || item.title || item.judul || "Tanpa Judul";
-          const isi = item.Content || item.content || item.isi || "<p>Tidak ada konten berita.</p>";
+          const tanggalBerita =
+            item.WaktuTerbit ||
+            item.ReceiveDate ||
+            item.Date ||
+            "Tanggal tidak tersedia";
+          const lokasiBerita =
+            item.Wilayah || item.City || item.Location || "ANTARA";
+          const judul =
+            item.Subject || item.title || item.judul || "Tanpa Judul";
+          const isi =
+            item.Content ||
+            item.content ||
+            item.isi ||
+            "<p>Tidak ada konten berita.</p>";
           const actor = item.Actor || item.actor || "-";
-          const tag = item.Tag || item.tag || item.Category || item.category || "Umum";
-          
+          const tag =
+            item.Tag || item.tag || item.Category || item.category || "Umum";
+
           let labelOren = "PROGRAM PRIORITAS BGN";
-          if (kategoriHalaman === "mbg") labelOren = "MAKAN BERGIZI GRATIS (MBG)";
-          else if (kategoriHalaman === "korupsi") labelOren = "PEMBERANTASAN KORUPSI BGN";
-          else if (kategoriHalaman === "tatakelola") labelOren = "PENGUATAN TATA KELOLA BGN";
-          else if (kategoriHalaman === "transparansi") labelOren = "PENINGKATAN TRANSPARANSI BGN";
+          if (kategoriHalaman === "mbg")
+            labelOren = "MAKAN BERGIZI GRATIS (MBG)";
+          else if (kategoriHalaman === "korupsi")
+            labelOren = "PEMBERANTASAN KORUPSI BGN";
+          else if (kategoriHalaman === "tatakelola")
+            labelOren = "PENGUATAN TATA KELOLA BGN";
+          else if (kategoriHalaman === "transparansi")
+            labelOren = "PENINGKATAN TRANSPARANSI BGN";
 
-          const imageId = (item.Attachment && item.Attachment.length > 0) ? item.Attachment[0] : "";
-          const imageSrc = imageId 
-            ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}` 
-            : '';
+          const imageId =
+            item.Attachment && item.Attachment.length > 0
+              ? item.Attachment[0]
+              : "";
+          const imageSrc = imageId
+            ? `https://dev.onebox.co.id/feature/publicrelation/FileManager/getfile/${imageId}`
+            : "";
 
-          const finalImageTag = imageSrc 
+          const finalImageTag = imageSrc
             ? `<img src="${imageSrc}" alt="Foto Berita" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80';">`
             : `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #94a3b8; font-size: 12px; background:#f8fafc;">Tanpa Foto</div>`;
 
@@ -316,7 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   <span style="overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;"><i class="fa-solid fa-location-dot" style="margin-right: 4px;"></i> ${lokasiBerita}</span>
                 </div>
                 <div>
-                  <button class="btn-detail" data-judul="${judul.replace(/"/g, '&quot;')}" data-tanggal="${tanggalBerita.replace(/"/g, '&quot;')}" data-lokasi="${lokasiBerita.replace(/"/g, '&quot;')}" data-img="${imageSrc}" data-actor="${actor.replace(/"/g, '&quot;')}" data-tag="${tag.replace(/"/g, '&quot;')}" data-isi="${encodeURIComponent(isi)}" style="background: #d97706; color: #fff; border: none; font-weight: 700; cursor: pointer; padding: 6px 12px; font-size: 13px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px;">
+                  <button class="btn-detail" data-judul="${judul.replace(/"/g, "&quot;")}" data-tanggal="${tanggalBerita.replace(/"/g, "&quot;")}" data-lokasi="${lokasiBerita.replace(/"/g, "&quot;")}" data-img="${imageSrc}" data-actor="${actor.replace(/"/g, "&quot;")}" data-tag="${tag.replace(/"/g, "&quot;")}" data-isi="${encodeURIComponent(isi)}" style="background: #d97706; color: #fff; border: none; font-weight: 700; cursor: pointer; padding: 6px 12px; font-size: 13px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px;">
                     <span>Lihat Selengkapnya</span> 
                     <i class="fa-solid fa-chevron-right"></i>
                   </button>
@@ -332,7 +434,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Event global untuk tombol "Lihat Selengkapnya"
-document.addEventListener("click", function(e) {
+document.addEventListener("click", function (e) {
   const btn = e.target.closest(".btn-detail");
   if (btn) {
     const judul = btn.getAttribute("data-judul");
@@ -342,11 +444,15 @@ document.addEventListener("click", function(e) {
     const actor = btn.getAttribute("data-actor");
     const tag = btn.getAttribute("data-tag");
     const isi = decodeURIComponent(btn.getAttribute("data-isi"));
-    const sidebarDetailContent = document.getElementById("sidebar-detail-content");
+    const sidebarDetailContent = document.getElementById(
+      "sidebar-detail-content",
+    );
 
     if (sidebarDetailContent) {
-      const imageTag = img ? `<img src="${img}" alt="Foto Berita" style="width: 100%; height: 200px; object-fit: cover; border-radius: 6px; margin-bottom: 12px;" onerror="this.src='https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80';">` : '';
-      
+      const imageTag = img
+        ? `<img src="${img}" alt="Foto Berita" style="width: 100%; height: 200px; object-fit: cover; border-radius: 6px; margin-bottom: 12px;" onerror="this.src='https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=300&auto=format&fit=crop&q=80';">`
+        : "";
+
       sidebarDetailContent.innerHTML = `
         ${imageTag}
         <h3 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 8px; line-height: 1.4;">
@@ -364,8 +470,11 @@ document.addEventListener("click", function(e) {
           <div><strong><i class="fa-solid fa-tag"></i> Tag:</strong> <span style="background: #f1f5f9; color: #d97706; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; border: 1px solid #e2e8f0; display: inline-block;">${tag}</span></div>
         </div>
       `;
-      
-      sidebarDetailContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      sidebarDetailContent.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   }
 });
