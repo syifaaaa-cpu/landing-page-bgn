@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjU3NSwiZXhwIjoxNzg4MTA3NTU2LCJuYmYiOjE3ODgwOTg1NTYsImlhdCI6MTc4ODA5ODU1NiwianRpIjoibGluNjYrUXE4aGZ3VHZzZmkveWw2R3NOUjQ4NjVaMEl3Rk14M2hvLzJ0ND0iLCJzZXNpZCI6IjkwMzg3ZmY3NTZmN2IzYzY5NGQzYzhmMjRiNmY5MTZiIiwidXNpZCI6MTE5NzUsInNpZCI6MTY5fQ.AhR00z5qAgvCy-fxnL2moYYqN-E-L2Z_F6g9auIU2os";
+  const tokenUser = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOjUyMSwiZXhwIjoxNzkzMjcxNTA1LCJuYmYiOjE3OTMyNjI1MDUsImlhdCI6MTc5MzI2MjUwNSwianRpIjoiOHFnaCtUeGMzQnVKZFRQdGx5U3J6Qm9SUy93dUh2cmJLNFd5OG9tMWQ0OD0iLCJzZXNpZCI6Ijk2ZTNmODdkMDljZDdiOTg2MDA3NjYzNDgyZWViYWRlIiwidXNpZCI6NjIyOCwic2lkIjoxNjl9.gNrQrhp6b5BzYSx4EfifAeAhCodpOeyeReKvTSB1Znk";
   
   // URL API standar (token dipindah ke Header Authorization)
   const apiUrl = `https://dev.onebox.co.id/api/news/get?startdate=01-01-2024&enddate=31-12-2030&limit=100`;
